@@ -132,11 +132,11 @@ public class ProgramStatement implements Comparable<ProgramStatement> {
             this.instruction = instr;
             String mask = instr.getOperationMask();
             BasicInstructionFormat format = instr.getInstructionFormat();
-            if (format == BasicInstructionFormat.U_JUMP_FORMAT) {
+            if (format == BasicInstructionFormat.J_FORMAT) {
                 this.operands[0] = this.readBinaryCode(mask, Instruction.operandMask[0], binaryStatement);
                 this.operands[1] = fromJumpImmediate(this.readBinaryCode(mask, Instruction.operandMask[1], binaryStatement));
                 this.numOperands = 2;
-            } else if (format == BasicInstructionFormat.S_BRANCH_FORMAT) {
+            } else if (format == BasicInstructionFormat.B_FORMAT) {
                 this.operands[0] = this.readBinaryCode(mask, Instruction.operandMask[0], binaryStatement);
                 this.operands[1] = this.readBinaryCode(mask, Instruction.operandMask[1], binaryStatement);
                 this.operands[2] = fromBranchImmediate(this.readBinaryCode(mask, Instruction.operandMask[2], binaryStatement));
@@ -228,22 +228,22 @@ public class ProgramStatement implements Comparable<ProgramStatement> {
 
                 if (instruction instanceof BasicInstruction) {
                     BasicInstructionFormat format = ((BasicInstruction) instruction).getInstructionFormat();
-                    if (format == BasicInstructionFormat.S_BRANCH_FORMAT) {
+                    if (format == BasicInstructionFormat.B_FORMAT) {
                         //address = (address - (this.textAddress + Instruction.INSTRUCTION_LENGTH)) >> 2;
                         address = (address - this.textAddress) >> 1;
-                        if (address >= (1 << 19) || address < -(1 << 19)) {
+                        if (address >= (1 << 11) || address < -(1 << 11)) {
                             // attempt to jump beyond 21-bit byte (20-bit word) address range.
                             // SPIM flags as warning, I'll flag as error b/c RARS text segment not long enough for it to be OK.
                             errors.add(new ErrorMessage(this.sourceProgram, this.sourceLine, 0,
-                                    "Jump target word address beyond 20-bit range"));
+                                    "Branch target word address beyond 12-bit range"));
                             return;
                         }
                         absoluteAddress = false;
-                    } else if (format == BasicInstructionFormat.U_JUMP_FORMAT) {
+                    } else if (format == BasicInstructionFormat.J_FORMAT) {
                         address = (address - this.textAddress) >> 1;
-                        if (address >= (1 << 11) || address < -(1 << 11)) {
+                        if (address >= (1 << 19) || address < -(1 << 19)) {
                             errors.add(new ErrorMessage(this.sourceProgram, this.sourceLine, 0,
-                                    "Jump target word address beyond 12-bit range"));
+                                    "Jump target word address beyond 20-bit range"));
                             return;
                         }
                         absoluteAddress = false;
@@ -350,10 +350,10 @@ public class ProgramStatement implements Comparable<ProgramStatement> {
         this.machineStatement = ((BasicInstruction) instruction).getOperationMask();
         BasicInstructionFormat format = ((BasicInstruction) instruction).getInstructionFormat();
 
-        if (format == BasicInstructionFormat.U_JUMP_FORMAT) {
+        if (format == BasicInstructionFormat.J_FORMAT) {
             this.insertBinaryCode(this.operands[0], Instruction.operandMask[0], errors);
             this.insertBinaryCode(toJumpImmediate(this.operands[1]), Instruction.operandMask[1], errors);
-        } else if (format == BasicInstructionFormat.S_BRANCH_FORMAT) {
+        } else if (format == BasicInstructionFormat.B_FORMAT) {
             this.insertBinaryCode(this.operands[0], Instruction.operandMask[0], errors);
             this.insertBinaryCode(this.operands[1], Instruction.operandMask[1], errors);
             this.insertBinaryCode(toBranchImmediate(this.operands[2]), Instruction.operandMask[2], errors);

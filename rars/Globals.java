@@ -99,13 +99,13 @@ public class Globals {
     /**
      * The current version number. Can't wait for "initialize()" call to get it.
      */
-    public static final String version = "1.1";
+    public static final String version = "1.2";
     /**
      * List of accepted file extensions for RISCV assembly source files.
      */
     public static final ArrayList<String> fileExtensions = getFileExtensions();
     /**
-     * Maximum length of scrolled message window (MARS Messages and Run I/O)
+     * Maximum length of scrolled message window (RARS Messages and Run I/O)
      */
     public static final int maximumMessageCharacters = getMessageLimit();
     /**
@@ -140,7 +140,7 @@ public class Globals {
     public static boolean runSpeedPanelExists = false;
 
     private static String getCopyrightYears() {
-        return "2003-2018";
+        return "2003-2019";
     }
 
     private static String getCopyrightHolders() {
@@ -176,7 +176,7 @@ public class Globals {
         }
     }
 
-    // Read byte limit of Run I/O or MARS Messages text to buffer.
+    // Read byte limit of Run I/O or RARS Messages text to buffer.
     private static int getMessageLimit() {
         return getIntegerProperty(configPropertiesFile, "MessageLimit", 1000000);
     }
@@ -203,19 +203,31 @@ public class Globals {
     public static String[] getAsciiStrings() {
         String let = getPropertyEntry(configPropertiesFile, "AsciiTable");
         String placeHolder = getAsciiNonPrint();
-        String[] lets = let.split(" +");
-        int maxLength = 0;
-        for (int i = 0; i < lets.length; i++) {
-            if (lets[i].equals("null")) lets[i] = placeHolder;
-            if (lets[i].equals("space")) lets[i] = " ";
-            if (lets[i].length() > maxLength) maxLength = lets[i].length();
+        if(let == null){
+            // If config isn't loaded, give a decent default value.
+            String[] table = new String[((int) '~' )+ 1];
+            for (int i = 0; i < table.length; i++) {
+                if (i == 0) table[i] = "\0";
+                else if (i == '\n') table[i] = "\n";
+                else if (i < ' ') table[i] = placeHolder;
+                else table[i] = " "+(char) i;
+            }
+            return table;
+        }else {
+            String[] lets = let.split(" +");
+            int maxLength = 0;
+            for (int i = 0; i < lets.length; i++) {
+                if (lets[i].equals("null")) lets[i] = placeHolder;
+                if (lets[i].equals("space")) lets[i] = " ";
+                if (lets[i].length() > maxLength) maxLength = lets[i].length();
+            }
+            String padding = "        ";
+            maxLength++;
+            for (int i = 0; i < lets.length; i++) {
+                lets[i] = padding.substring(0, maxLength - lets[i].length()) + lets[i];
+            }
+            return lets;
         }
-        String padding = "        ";
-        maxLength++;
-        for (int i = 0; i < lets.length; i++) {
-            lets[i] = padding.substring(0, maxLength - lets[i].length()) + lets[i];
-        }
-        return lets;
     }
 
     // Read and return integer property value for given file and property name.
