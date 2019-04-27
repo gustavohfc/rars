@@ -101,6 +101,7 @@ public class SaveChanges extends AbstractToolAndApplication {
             return;
 
         if (notice.getAccessType() == AccessNotice.WRITE && resource instanceof Register && saveRegistersChanges.isSelected()) {
+            // Write changes on registers
             Register register = (Register) resource;
             String change = intToBinaryString(register.getNumber(), 5) + " " + intToBinaryString(register.getValueNoNotify(), 32) + "\n";
 
@@ -108,6 +109,7 @@ public class SaveChanges extends AbstractToolAndApplication {
             write(fileChangesWithInstructions, change);
 
         } else if (notice.getAccessType() == AccessNotice.WRITE && notice instanceof MemoryAccessNotice && saveMemoryChanges.isSelected()) {
+            // Write changes on memory
             MemoryAccessNotice memAccNotice = (MemoryAccessNotice) notice;
             String change = intToBinaryString(memAccNotice.getAddress(), 32) + " " + intToBinaryString(memAccNotice.getValue(), 32) + "\n";
 
@@ -127,11 +129,10 @@ public class SaveChanges extends AbstractToolAndApplication {
                     return;
                 }
 
-                if (stmt != null) {
-                    if (!outputFilesOpened) {
-                        openOutputFiles(stmt.getSourceFile());
-                    }
+                // Write the current PC
 
+                // Write the current instruction for debug purposes
+                if (stmt != null) {
                     String instruction = "\n" + stmt.getSource() + "\t\t\t" + stmt.getPrintableBasicAssemblyStatement() + "\n";
 
                     write(fileChangesWithInstructions, instruction);
@@ -141,6 +142,10 @@ public class SaveChanges extends AbstractToolAndApplication {
     }
 
     private void write(FileWriter file, String str){
+        if (!outputFilesOpened) {
+            openOutputFiles();
+        }
+
         try {
             file.write(str);
         } catch (IOException e) {
@@ -148,9 +153,18 @@ public class SaveChanges extends AbstractToolAndApplication {
         }
     }
 
-    private void openOutputFiles(String original_file) {
+    private void openOutputFiles() {
+        // Get source file name
+        String sourceFile;
+        try {
+            sourceFile = Memory.getInstance().getStatementNoNotify(Memory.textBaseAddress).getSourceFile();
+        } catch (AddressErrorException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Dialog", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         // Remove file extension
-        String prefix = original_file.substring(0, original_file.lastIndexOf('.'));
+        String prefix = sourceFile.substring(0, sourceFile.lastIndexOf('.'));
 
         try {
             fileRegisterChanges = new FileWriter(prefix + "_register_changes.txt");
