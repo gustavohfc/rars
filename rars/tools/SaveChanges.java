@@ -100,6 +100,10 @@ public class SaveChanges extends AbstractToolAndApplication {
         if (!notice.accessIsFromRISCV())
             return;
 
+        if (!outputFilesOpened) {
+            openOutputFiles();
+        }
+
         if (notice.getAccessType() == AccessNotice.WRITE && resource instanceof Register && saveRegistersChanges.isSelected()) {
             // Write changes on registers
             Register register = (Register) resource;
@@ -142,10 +146,6 @@ public class SaveChanges extends AbstractToolAndApplication {
     }
 
     private void write(FileWriter file, String str){
-        if (!outputFilesOpened) {
-            openOutputFiles();
-        }
-
         try {
             file.write(str);
         } catch (IOException e) {
