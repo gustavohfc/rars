@@ -2,6 +2,8 @@ package rars.simulator;
 
 import rars.Globals;
 import rars.ProgramStatement;
+import rars.riscv.hardware.ControlAndStatusRegisterFile;
+import rars.riscv.hardware.FloatingPointRegisterFile;
 import rars.riscv.hardware.RegisterFile;
 import rars.riscv.Instruction;
 
@@ -49,6 +51,7 @@ public class BackStepper {
         REGISTER_RESTORE,
         PC_RESTORE,
         CONTROL_AND_STATUS_REGISTER_RESTORE,
+        CONTROL_AND_STATUS_REGISTER_BACKDOOR,
         FLOATING_POINT_REGISTER_RESTORE,
         DO_NOTHING
     }
@@ -146,6 +149,15 @@ public class BackStepper {
                             break;
                         case REGISTER_RESTORE:
                             RegisterFile.updateRegister(step.param1, step.param2);
+                            break;
+                        case FLOATING_POINT_REGISTER_RESTORE:
+                            FloatingPointRegisterFile.updateRegister(step.param1,step.param2);
+                            break;
+                        case CONTROL_AND_STATUS_REGISTER_RESTORE:
+                            ControlAndStatusRegisterFile.updateRegister(step.param1,step.param2);
+                            break;
+                        case CONTROL_AND_STATUS_REGISTER_BACKDOOR:
+                            ControlAndStatusRegisterFile.updateRegisterBackdoor(step.param1,step.param2);
                             break;
                         case PC_RESTORE:
                             RegisterFile.setProgramCounter(step.param1);
@@ -264,6 +276,21 @@ public class BackStepper {
      */
     public int addControlAndStatusRestore(int register, int value) {
         backSteps.push(Action.CONTROL_AND_STATUS_REGISTER_RESTORE, pc(), register, value);
+        return value;
+    }
+
+
+    /**
+     * Add a new "back step" (the undo action) to the stack.  The action here
+     * is to restore a control and status register value. This does not obey
+     * read only restrictions and does not notify observers.
+     *
+     * @param register The affected register number.
+     * @param value    The "restore" value to be stored there.
+     * @return the argument value
+     */
+    public int addControlAndStatusBackdoor(int register, int value) {
+        backSteps.push(Action.CONTROL_AND_STATUS_REGISTER_BACKDOOR, pc(), register, value);
         return value;
     }
 

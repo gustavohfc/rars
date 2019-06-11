@@ -1,12 +1,7 @@
-package rars.riscv.instructions;
-
-import rars.ProgramStatement;
-import rars.riscv.hardware.RegisterFile;
-import rars.riscv.BasicInstruction;
-import rars.riscv.BasicInstructionFormat;
+package rars.riscv.hardware;
 
 /*
-Copyright (c) 2017,  Benjamin Landers
+Copyright (c) 2019,  Benjamin Landers
 
 Developed by Benjamin Landers (benjaminrlanders@gmail.com)
 
@@ -32,14 +27,26 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 (MIT license, http://www.opensource.org/licenses/mit-license.html)
  */
 
-public class LUI extends BasicInstruction {
-    public LUI() {
-        super("lui t1,100000", "Load upper immediate: set t1 to 20-bit followed by 12 0s",
-                BasicInstructionFormat.U_FORMAT, "ssssssssssssssssssss fffff 0110111");
+/**
+ * A register which aliases a subset of another register
+ */
+public class ReadOnlyRegister extends Register {
+    private int mask;
+
+    /**
+     * @param name the name to assign
+     * @param num  the number to assign
+     * @param val the reset value
+     * @param mask the bits to use
+     */
+    public ReadOnlyRegister(String name, int num, int val, int mask) {
+        super(name, num, val); // reset value does not matter
+        this.mask = mask;
     }
 
-    public void simulate(ProgramStatement statement) {
-        int[] operands = statement.getOperands();
-        RegisterFile.updateRegister(operands[0], operands[1] << 12);
+    public synchronized int setValue(int val) {
+        int current = getValue();
+        super.setValue((current & mask) | (val & ~mask));
+        return current;
     }
 }
