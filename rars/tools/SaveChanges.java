@@ -31,6 +31,7 @@ import rars.riscv.hardware.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Observable;
@@ -73,7 +74,7 @@ public class SaveChanges extends AbstractToolAndApplication {
     @Override
     protected void addAsObserver() {
         addAsObserver(Memory.textBaseAddress, Memory.textLimitAddress);
-        addAsObserver(Memory.dataSegmentBaseAddress, Memory.dataSegmentLimitAddress + 1);
+        addAsObserver(Memory.dataSegmentBaseAddress, Memory.dataSegmentLimitAddress);
         for (Register r : RegisterFile.getRegisters()) {
             addAsObserver(r);
         }
@@ -164,12 +165,12 @@ public class SaveChanges extends AbstractToolAndApplication {
         }
 
         // Remove file extension
-        String prefix = sourceFile.substring(0, sourceFile.lastIndexOf('.'));
+        String prefix = sourceFile.substring(0, sourceFile.lastIndexOf(File.separator) + 1);
 
         try {
-            fileRegisterChanges = new FileWriter(prefix + "_register_changes.txt");
-            fileMemoryChanges = new FileWriter(prefix + "_memory_changes.txt");
-            fileChangesWithInstructions = new FileWriter(prefix + "_changes_with_instructions.txt");
+            fileRegisterChanges = new FileWriter(prefix + "register_changes.txt");
+            fileMemoryChanges = new FileWriter(prefix + "memory_changes.txt");
+            fileChangesWithInstructions = new FileWriter(prefix + "changes_with_instructions.txt");
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Dialog", JOptionPane.ERROR_MESSAGE);
             closeOutputFiles();
