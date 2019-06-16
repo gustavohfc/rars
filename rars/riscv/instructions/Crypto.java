@@ -47,7 +47,7 @@ public abstract class Crypto extends BasicInstruction {
     public static final String CryptoLW = "0000000";
     public static final String CryptoNEXT = "0010000";
     public static final String CryptoLAST = "0100000";
-    public static final String CryptoCOMPLETED = "0110000";
+    public static final String CryptoBUSY = "0110000";
     public static final String CryptoDIGEST = "1000000";
     public static final String CryptoRESET = "1010000";
 
@@ -62,6 +62,6 @@ public abstract class Crypto extends BasicInstruction {
 
     @Override
     public void simulate(ProgramStatement statement) throws SimulationException {
-        throw new SimulationException(statement, warning);
+//        throw new SimulationException(statement, warning);
     }
 }

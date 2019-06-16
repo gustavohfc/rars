@@ -27,8 +27,8 @@ Copyright (c) 2019,  Gustavo Henrique Fernandes Carvalho
 
 package rars.riscv.instructions;
 
-public class CRYPTOSHA1COMPLETED extends Crypto {
-    public CRYPTOSHA1COMPLETED() {
-        super("crypto.sha1.completed t1", CryptoCOMPLETED + CryptoEmptyRegister + CryptoEmptyRegister + CryptoSHA1 + "fffff" + CryptoOpcode);
+public class CRYPTOSHA1BUSY extends Crypto {
+    public CRYPTOSHA1BUSY() {
+        super("crypto.sha1.busy t1", CryptoBUSY + CryptoEmptyRegister + CryptoEmptyRegister + CryptoSHA1 + "fffff" + CryptoOpcode);
     }
 }
