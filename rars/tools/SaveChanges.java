@@ -74,7 +74,7 @@ public class SaveChanges extends AbstractToolAndApplication {
     @Override
     protected void addAsObserver() {
         addAsObserver(Memory.textBaseAddress, Memory.textLimitAddress);
-        addAsObserver(Memory.dataSegmentBaseAddress, Memory.dataSegmentLimitAddress);
+        addAsObserver(Memory.dataSegmentBaseAddress, Memory.userHighAddress - 3);
         for (Register r : RegisterFile.getRegisters()) {
             addAsObserver(r);
         }
@@ -114,7 +114,7 @@ public class SaveChanges extends AbstractToolAndApplication {
             write(fileChangesWithInstructions, change);
 
         } else if (notice.getAccessType() == AccessNotice.WRITE && notice instanceof MemoryAccessNotice && saveMemoryChanges.isSelected()) {
-            // Write changes on memory
+
             MemoryAccessNotice memAccNotice = (MemoryAccessNotice) notice;
             String change = intToBinaryString(memAccNotice.getAddress(), 32) + " " + intToBinaryString(memAccNotice.getValue(), 32) + "\n";
 
@@ -133,8 +133,6 @@ public class SaveChanges extends AbstractToolAndApplication {
                     JOptionPane.showMessageDialog(null, e.getMessage(), "Dialog", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
-                // Write the current PC
 
                 // Write the current instruction for debug purposes
                 if (stmt != null) {
