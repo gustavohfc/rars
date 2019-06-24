@@ -44,15 +44,15 @@ public class IntelHexDumpFormat extends AbstractDumpFormat {
                 while (string.length() < 8) {
                     string = '0' + string;
                 }
-                String addr = Integer.toHexString(address - firstAddress);
+                String addr = Integer.toHexString((address - firstAddress) / 4);
                 while (addr.length() < 4) {
                     addr = '0' + addr;
                 }
                 String chksum;
                 int tmp_chksum = 0;
                 tmp_chksum += 4;
-                tmp_chksum += 0xFF & (address - firstAddress);
-                tmp_chksum += 0xFF & ((address - firstAddress) >> 8);
+                tmp_chksum += 0xFF & ((address - firstAddress) / 4);
+                tmp_chksum += 0xFF & (((address - firstAddress) / 4) >> 8);
                 tmp_chksum += 0xFF & temp;
                 tmp_chksum += 0xFF & (temp >> 8);
                 tmp_chksum += 0xFF & (temp >> 16);
