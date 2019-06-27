@@ -100,6 +100,12 @@ public class PipelineCycleCounter extends AbstractToolAndApplication {
         int a = memoryAccessNotice.getAddress();
         if (a == lastAddress)
             return;
+
+        // Add one bubble per jump taken
+        if (lastAddress != -1 && a != lastAddress + 4){
+            counter++;
+        }
+
         lastAddress = a;
 
         try {
